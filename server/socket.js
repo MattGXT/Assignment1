@@ -2,9 +2,22 @@ module.exports = {
 
     connect: function (io, PORT) {
         var rooms = ["room1", "room2", "room3", "room4"];
+        var user = [{name: "super", role: "sadmin", email: ""}];
         var socketRoom = [];
         var socketRoomnum = [];
 
+        const login = io.of('/login');
+
+        login.on('connection',(socket)=>{
+            socket.on('login',(name)=>{
+                for(i=0;i<user.length;i++){
+                    if(user[i].name == name){
+                        login.emit('login',JSON.stringify(user));
+                    }
+                }
+            })
+        })
+    
         const chat = io.of('/chat');
 
         chat.on('connection', (socket) => {
