@@ -16,8 +16,8 @@ export class LoginService {
     this.socket = io(SERVER_URL);
   }
 
-  login(name):void{
-    this.socket.emit("login",name);
+  login():void{
+    this.socket.emit("login");
   }
 
   logined(next){

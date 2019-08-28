@@ -1,1 +1,1 @@
-[{"name":"super","super":true,"admin":true,"email":"","grouplist":["group1","group2"],"admingrouplist":[1]}]
+[{"name":"super","super":true,"admin":true,"email":"","grouplist":["group1","group2","group2"],"admingrouplist":["group1"]},{"name":"NORMAL","super":false,"admin":true,"email":"tianyixingchen@gmail.com","grouplist":["group1"],"admingrouplist":["group1"]}]

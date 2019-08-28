@@ -10,12 +10,8 @@ module.exports = {
         const login = io.of('/login');
 
         login.on('connection',(socket)=>{
-            socket.on('login',(name)=>{
-                for(i=0;i<userlist.length;i++){
-                    if(userlist[i].name == name){
-                        login.emit('login',JSON.stringify(userlist));
-                    }
-                }
+            socket.on('login',()=>{               
+                login.emit('login',JSON.stringify(userlist));
             })
         })
 
@@ -24,6 +20,21 @@ module.exports = {
         useradd.on('connection',(socket)=>{
             socket.on('add',(user)=>{
                 fs.writeFileSync('./users.json',user,function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('addgroup',(username,groupname)=>{
+                var list = fs.readFileSync('./users.json','utf8');
+                let userlist = JSON.parse(list);
+                for(let i = 0;i<userlist.length;i++){
+                    if(username == userlist[i].name){
+                        userlist[i].grouplist.push(groupname);
+                        userlist[i].admingrouplist.push(groupname);
+                    }
+                }
+                fs.writeFileSync('./users.json',JSON.stringify(userlist),function(err){
                     if(err) throw err;
                     console.log('updated');
                 })
@@ -39,7 +50,9 @@ module.exports = {
             })
 
             socket.on('addgroup',(group)=>{
-                fs.writeFileSync('./group.json',group,function(err){
+                grouplist = JSON.parse(fs.readFileSync('./group.json'));
+                grouplist.push(JSON.parse(group));
+                fs.writeFileSync('./group.json',JSON.stringify(grouplist),function(err){
                     if(err) throw err;
                     console.log('updated');
                 })

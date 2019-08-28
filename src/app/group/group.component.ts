@@ -20,6 +20,9 @@ export class GroupComponent implements OnInit {
   grouplist = [];
   admingrouplist = [];
   groups = [];
+  showngroups = [];
+  groupname = "";
+  username = "";
 
 
   constructor(private addservice:UseraddService, private groupservice:GroupService) { }
@@ -27,10 +30,12 @@ export class GroupComponent implements OnInit {
   ngOnInit() {
     this.addservice.initSocket();
     this.groupservice.initSocket();
-    var userlist = JSON.parse(localStorage.getItem('user'));
-    var username = localStorage.getItem('username');
+    let userlist = JSON.parse(localStorage.getItem('user'));
+    let username = localStorage.getItem('username');
+    let groups = JSON.parse(localStorage.getItem("group"));
     console.log(userlist);
     console.log(username);
+    console.log(groups);
     for(let i = 0; i< userlist.length;i++){
       if(username == userlist[i].name){
         this.isadmin = userlist[i].admin;
@@ -39,9 +44,15 @@ export class GroupComponent implements OnInit {
         this.admingrouplist = userlist[i].admingrouplist;
       }
     }
-    this.groupservice.getgroup();
-    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
-
+    for(let i = 0; i<groups.length;i++){
+      for(let j = 0;j < groups[i].members.length;j++){
+        if(username == groups[i].members[j]){
+          this.showngroups.push(groups[i]);
+        }
+      }
+    }
+    this.groups = groups;
+    this.username = username;
   }
 
   add(){
@@ -79,6 +90,32 @@ export class GroupComponent implements OnInit {
     let newupload = JSON.stringify(userlist);
     localStorage.setItem("user",newupload);
     this.addservice.add(newupload);
+  }
+
+  creategroup(){
+    var username = localStorage.getItem('username');
+    var group = JSON.parse(localStorage.getItem("group"));
+    var empty = [];
+    empty.push(username);
+    var grouplist = {
+      name: this.groupname,
+      members: empty,
+      channels: []
+    }
+    group.push(grouplist);
+    var userlist = JSON.parse(localStorage.getItem('user'));
+    for(let i = 0; i< userlist.length;i++){
+      if(username == userlist[i].name){
+        userlist[i].grouplist.push(this.groupname);
+        userlist[i].admingrouplist.push(this.groupname);
+      }
+    }
+    localStorage.setItem("user",JSON.stringify(userlist));
+    localStorage.setItem("group",JSON.stringify(group));
+    console.log(group);
+    this.addservice.addgroup(username,this.groupname);
+    this.groupservice.addgroup(JSON.stringify(grouplist));
+    alert("create successful");
   }
 
 }

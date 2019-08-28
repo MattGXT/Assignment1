@@ -19,4 +19,8 @@ export class UseraddService {
   add(user):void{
     this.socket.emit('add',user);
   }
+
+  addgroup(username,groupname){
+    this.socket.emit('addgroup',username,groupname);
+  }
 }

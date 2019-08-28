@@ -11,6 +11,7 @@ export class AppComponent {
 
   constructor() { 
     this.hidelogin();
+
   }
 
   ngOnInit(){
