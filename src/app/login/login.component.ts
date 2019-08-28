@@ -11,7 +11,7 @@ import { delay } from 'q';
 })
 export class LoginComponent implements OnInit {
 
-  username:String = "";
+  username:string = "";
   user = [];
 
   constructor(private socketservice:LoginService, private router: Router) { }
@@ -23,13 +23,15 @@ export class LoginComponent implements OnInit {
   login(){
     this.socketservice.login(this.username);
     this.socketservice.logined((res)=>{this.user = JSON.parse(res)}); 
+    console.log(this.user);
     if(this.user.length == 0){
-      alert('Please try again');
+      alert("please try again");
     }
     if(this.user.length != 0){
       alert("successful");
-      //localStorage.setItem("name", this.user[0].name);
-      //this.router.navigate(['/chat']);
+      localStorage.setItem("user", JSON.stringify(this.user));
+      localStorage.setItem("username", this.username);
+      this.router.navigate(['/group']);
     }
   }
 

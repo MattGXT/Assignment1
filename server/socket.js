@@ -1,8 +1,9 @@
+var fs = require('fs');
+
 module.exports = {
 
-    connect: function (io, PORT) {
+    connect: function (io, userlist,channel,group) {
         var rooms = ["room1", "room2", "room3", "room4"];
-        var user = [{name: "super", role: "sadmin", email: ""}];
         var socketRoom = [];
         var socketRoomnum = [];
 
@@ -10,11 +11,48 @@ module.exports = {
 
         login.on('connection',(socket)=>{
             socket.on('login',(name)=>{
-                for(i=0;i<user.length;i++){
-                    if(user[i].name == name){
-                        login.emit('login',JSON.stringify(user));
+                for(i=0;i<userlist.length;i++){
+                    if(userlist[i].name == name){
+                        login.emit('login',JSON.stringify(userlist));
                     }
                 }
+            })
+        })
+
+        const useradd = io.of('/useradd');
+
+        useradd.on('connection',(socket)=>{
+            socket.on('add',(user)=>{
+                fs.writeFileSync('./users.json',user,function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+        })
+
+        const groups = io.of('/group');
+
+        groups.on('connection',(socket)=>{
+            socket.on('getgroup',()=>{
+                groups.emit('getgroup',JSON.stringify(group));
+                console.log(JSON.stringify(group));
+            })
+
+            socket.on('addgroup',(group)=>{
+                fs.writeFileSync('./group.json',group,function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('getchannel',(groupname)=>{
+                var channellist = [];
+                for(let i = 0; i< channel.length;i++){
+                    if(groupname == channel[i].group){
+                        channellist.push(group[i]);
+                    }
+                }
+                groups.emit('getchannel',JSON.stringify(channellist));
             })
         })
     
