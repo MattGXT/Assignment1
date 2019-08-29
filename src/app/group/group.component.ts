@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UseraddService } from '../useradd.service';
 import { GroupService } from '../group.service';
+import {LoginService} from '../login.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { of, iif } from 'rxjs';
 import { nextTick } from 'q';
@@ -30,48 +31,54 @@ export class GroupComponent implements OnInit {
   deleteusername = "";
   assislist = [];
   assisname = "";
+  userlist = [];
 
 
 
-  constructor(private addservice: UseraddService, private groupservice: GroupService) { }
+
+  constructor(private addservice: UseraddService, private groupservice: GroupService, private loginservice:LoginService) { }
 
   ngOnInit() {
+    let username = localStorage.getItem('username');
+    this.loginservice.initSocket();
     this.addservice.initSocket();
     this.groupservice.initSocket();
-    let userlist = JSON.parse(localStorage.getItem('user'));
-    let username = localStorage.getItem('username');
-    let groups = JSON.parse(localStorage.getItem("group"));
-    this.channels = JSON.parse(localStorage.getItem("channel"));
-    this.assislist = userlist;
-    console.log(this.assislist);
-    for (let i = 0; i < userlist.length; i++) {
-      this.usernamelist.push(userlist[i].name);
-      if (username == userlist[i].name) {
-        this.isadmin = userlist[i].admin;
-        this.issuper = userlist[i].super;
-        this.grouplist = userlist[i].grouplist;
-        this.admingrouplist = userlist[i].admingrouplist;
-        this.assislist.splice(i, 1);
-      }
-    }
-    console.log(groups);
-    //Show the group current user has joined
-    for (let i = 0; i < groups.length; i++) {
-      for (let j = 0; j < groups[i].members.length; j++) {
-        if (username == groups[i].members[j]) {
-          this.showngroups.push(groups[i]);
+    this.loginservice.login();
+    this.loginservice.logined((res)=>{this.userlist = JSON.parse(res)
+      for (let i = 0; i < this.userlist.length; i++) {
+        this.usernamelist.push(this.userlist[i].name);
+        if (username == this.userlist[i].name) {
+          this.isadmin = this.userlist[i].admin;
+          this.issuper = this.userlist[i].super;
+          this.grouplist = this.userlist[i].grouplist;
+          this.admingrouplist = this.userlist[i].admingrouplist;
+          this.assislist.splice(i, 1);
         }
       }
-    }
+      this.assislist = this.userlist;
+    }); 
+    this.groupservice.initSocket();
+    this.groupservice.getgroup();
+    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)
+      for (let i = 0; i < this.groups.length; i++) {
+        for (let j = 0; j < this.groups[i].members.length; j++) {
+          if (username == this.groups[i].members[j]) {
+            this.showngroups.push(this.groups[i]);
+          }
+        }
+      }
+    }); 
+    this.groupservice.getchannel();
+    this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
+    console.log(this.assislist);
 
+    //Show the group current user has joined
 
-    this.groups = groups;
     this.username = username;
     console.log(this.showngroups);
   }
 
   add() {
-    var userlist = JSON.parse(localStorage.getItem('user'));
     if (this.admin == "admin") {
       var newuser = {
         name: this.name,
@@ -100,17 +107,14 @@ export class GroupComponent implements OnInit {
         admingrouplist: []
       }
     }
-    userlist.push(newuser);
-    console.log(userlist);
-    let newupload = JSON.stringify(userlist);
-    localStorage.setItem("user", newupload);
+    this.userlist.push(newuser);
+    let newupload = JSON.stringify(this.userlist);
     this.addservice.add(newupload);
     location.reload();
   }
 
   creategroup() {
     var username = localStorage.getItem('username');
-    var group = JSON.parse(localStorage.getItem("group"));
     var empty = [];
     empty.push(username);
     var grouplist = {
@@ -119,17 +123,8 @@ export class GroupComponent implements OnInit {
       channels: [],
       assis: []
     }
-    group.push(grouplist);
-    var userlist = JSON.parse(localStorage.getItem('user'));
-    for (let i = 0; i < userlist.length; i++) {
-      if (username == userlist[i].name) {
-        userlist[i].grouplist.push(this.groupname);
-        userlist[i].admingrouplist.push(this.groupname);
-      }
-    }
-    localStorage.setItem("user", JSON.stringify(userlist));
-    localStorage.setItem("group", JSON.stringify(group));
-    console.log(group);
+    this.groups.push(grouplist);
+    console.log(this.groups);
     this.addservice.addgroup(username, this.groupname);
     this.groupservice.addgroup(JSON.stringify(grouplist));
     alert("create successful");
@@ -137,23 +132,18 @@ export class GroupComponent implements OnInit {
   }
 
   remove(groupname) {
-    var grouplist = JSON.parse(localStorage.getItem("group"));
     var username = localStorage.getItem('username');
-    console.log(grouplist);
-    for (let i = 0; i < grouplist.length; i++) {
-      if (groupname == grouplist[i].name) {
-        grouplist.splice(i, 1);
+    for (let i = 0; i < this.groups.length; i++) {
+      if (groupname == this.groups[i].name) {
+        this.groups.splice(i, 1);
       }
     }
-    console.log(grouplist);
-    localStorage.setItem("group", JSON.stringify(grouplist));
+    console.log(this.groups);
     this.groupservice.removegroup(groupname, username);
     location.reload();
   }
 
   addchannel(groupname) {
-    var channellist = JSON.parse(localStorage.getItem("channel"));
-    var grouplist = JSON.parse(localStorage.getItem("group"));
     var username = localStorage.getItem('username');
     var empty = [];
     empty.push(username);
@@ -163,70 +153,18 @@ export class GroupComponent implements OnInit {
       members: empty,
       history: ""
     }
-    for (let i = 0; i < grouplist.length; i++) {
-      if (groupname == grouplist[i].name) {
-        grouplist[i].channels.push(this.channelname);
-      }
-    }
-    localStorage.setItem("group", JSON.stringify(grouplist));
-    channellist.push(channel);
-    localStorage.setItem("channel", JSON.stringify(channellist));
     this.groupservice.addchannel(channel);
     location.reload();
   }
 
   removechannel(channelname, groupname) {
-    var channellist = JSON.parse(localStorage.getItem("channel"));
-    var grouplist = JSON.parse(localStorage.getItem("group"));
-    for (let i = 0; i < channellist.length; i++) {
-      if (channelname == channellist[i].name) {
-        channellist.splice(i, 1);
-      }
-    }
-
-    for (let i = 0; i < grouplist.length; i++) {
-      if (groupname == grouplist[i].name) {
-        for (let j = 0; j < grouplist[i].channels.length; j++) {
-          if (channelname == grouplist[i].channels[j]) {
-            grouplist[i].channels.splice(j, 1);
-          }
-        }
-      }
-    }
-    console.log(grouplist);
-    localStorage.setItem("group", JSON.stringify(grouplist));
-    localStorage.setItem("channel", JSON.stringify(channellist));
     this.groupservice.removechannel(channelname, groupname);
     location.reload();
   }
 
   deleteuser() {
     this.addservice.delete(this.deleteusername);
-    var channellist = JSON.parse(localStorage.getItem("channel"));
-    var grouplist = JSON.parse(localStorage.getItem("group"));
-    var userlist = JSON.parse(localStorage.getItem('user'));
-    for (let i = 0; i < userlist.length; i++) {
-      if (this.deleteusername == userlist[i].name) {
-        userlist.splice(i, 1);
-      }
-    }
-    for (let i = 0; i < grouplist.length; i++) {
-      for (let j = 0; j < grouplist[i].members.length; j++) {
-        if (this.deleteusername == grouplist[i].members[j]) {
-          grouplist[i].members.splice(j, 1);
-        }
-      }
-    }
-    for (let i = 0; i < channellist.length; i++) {
-      for (let j = 0; j < channellist[i].members.length; j++) {
-        if (this.deleteusername == channellist[i].members[j]) {
-          channellist[i].members.splice(j, 1);
-        }
-      }
-    }
-    localStorage.setItem("group", JSON.stringify(grouplist));
-    localStorage.setItem("channel", JSON.stringify(channellist));
-    localStorage.setItem("user", JSON.stringify(userlist));
+    location.reload();
   }
 
   go(channelname) {
@@ -234,13 +172,6 @@ export class GroupComponent implements OnInit {
   }
 
   addassis(groupname) {
-    var grouplist = JSON.parse(localStorage.getItem("group"));
-    for (let i = 0; i < grouplist.length; i++) {
-      if (groupname == grouplist[i].name) {
-        grouplist[i].assis.push(this.assisname);
-      }
-    }
-    localStorage.setItem("group", JSON.stringify(grouplist));
     this.groupservice.addassistogroup(groupname, this.assisname);
     alert("add successful");
     location.reload();
@@ -248,11 +179,10 @@ export class GroupComponent implements OnInit {
 
   //check the current is assis,admin,super or not
   checkauth(groupname) {
-    var grouplist = JSON.parse(localStorage.getItem("group"));
-    for (let i = 0; i < grouplist.length; i++) {
-      if (groupname == grouplist[i].name) {
-        for (let j = 0; j < grouplist[i].assis.length; j++) {
-          if (this.username == grouplist[i].assis[j]) {
+    for (let i = 0; i < this.grouplist.length; i++) {
+      if (groupname == this.grouplist[i].name) {
+        for (let j = 0; j < this.grouplist[i].assis.length; j++) {
+          if (this.username == this.grouplist[i].assis[j]) {
             return true;
           }
         }

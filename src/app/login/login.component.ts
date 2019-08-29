@@ -35,10 +35,7 @@ export class LoginComponent implements OnInit {
       for(let i = 0;i< this.user.length;i++){
         if(this.username == this.user[i].name){
           alert("successful");
-          localStorage.setItem("user", JSON.stringify(this.user));
           localStorage.setItem("username", this.username);
-          localStorage.setItem("group", JSON.stringify(this.groups));
-          localStorage.setItem("channel", JSON.stringify(this.channels));
           this.router.navigate(['/group']);
           a = 1;
           break;
