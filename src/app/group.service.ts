@@ -55,4 +55,8 @@ export class GroupService {
   deleteusertochannel(username,channelname){
     this.socket.emit("deleteusertochannel",username,channelname);
   }
+
+  addassistogroup(groupname,assisname){
+    this.socket.emit("addassistogroup",groupname,assisname);
+  }
 }

@@ -6,7 +6,9 @@
     <thead>
     <tr>
     <th class="text-left">Name</th>
+    <!--
     <th class="text-left">Members</th>
+    //-->
     <th class="text-left">Channels</th>
     <th class="text-left">Manage</th>
     <th class="text-left">Assis</th>
@@ -16,20 +18,22 @@
     <ng-container *ngFor = "let group of showngroups">
     <tr>
     <td class="text-left">{{group.name}}</td>
+    <!--
     <td class="text-left">{{group.members}}</td>
-    <td class="text-left"><div *ngFor = "let channel of group.channels"><a href = "/channel" (click) = "go(channel)">{{channel}}</a><button class="btn btn-primary" (click) = "removechannel(channel,group.name)">Removechannel</button></div></td>
-    <td *ngIf = "isadmin">
-    <button class="btn btn-primary" (click) = "remove(group.name)">Remove</button><br>
-    <input [(ngModel)] = "channelname" type="text" class="form-control" id="channelname" name="channelname" placeholder="channelname">
-    <button class="btn btn-primary" (click) = "addchannel(group.name)">Createchannel</button>
-    </td>
+    //-->
+    <td class="text-left"><div *ngFor = "let channel of group.channels"><a href = "/channel" (click) = "go(channel)">{{channel}}</a><button *ngIf = "isadmin||issuper" class="btn btn-primary" (click) = "removechannel(channel,group.name)">Removechannel</button></div></td>
     <td>
-        <select [(ngModel)] = "assisname" name = "assisname">
-            <option *ngFor = "let user of usernamelist">
-                {{user}}
+    <button class="btn btn-primary" (click) = "remove(group.name)"  *ngIf = "isadmin">Remove</button><br>
+    <input [(ngModel)] = "channelname" type="text" class="form-control" id="channelname" name="channelname" placeholder="channelname"  *ngIf = "checkauth(group.name)">
+    <button class="btn btn-primary" (click) = "addchannel(group.name)" *ngIf = "checkauth(group.name)">Createchannel</button>
+    </td>
+    <td >
+        <select [(ngModel)] = "assisname" name = "assisname" *ngIf = "isadmin||issuper">
+            <option *ngFor = "let user of assislist">
+                {{user.name}}
             </option>
         </select>
-        <button class="btn btn-primary" (click) = "addassis()">Add Assis</button><br>
+        <button class="btn btn-primary" (click) = "addassis(group.name)" *ngIf = "isadmin||issuper">Add Assis</button><br>
     </td>
     </tr>
     </ng-container>

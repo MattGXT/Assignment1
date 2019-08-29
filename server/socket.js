@@ -130,6 +130,19 @@ module.exports = {
                 })
             })
 
+            socket.on('addassistogroup', (groupname,assisname) => {
+                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
+                for (let i = 0; i < grouplist.length; i++) {
+                    if (groupname == grouplist[i].name) {
+                        grouplist[i].assis.push(assisname);
+                    }
+                }
+                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
+                    if (err) throw err;
+                    console.log('updated');
+                })
+            })
+
 
             socket.on('getchannel', () => {
                 channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));

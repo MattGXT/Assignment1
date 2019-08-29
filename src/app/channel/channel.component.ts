@@ -15,6 +15,10 @@ export class ChannelComponent implements OnInit {
   addusername = "";
   deleteusername = "";
   group = "";
+  isadmin = false;
+  issuper = false;
+  username = "";
+
 
 
 
@@ -33,8 +37,15 @@ export class ChannelComponent implements OnInit {
       }
     }
     var userlist = JSON.parse(localStorage.getItem('user'));
-    console.log(userlist);
     var username = localStorage.getItem('username');
+    for (let i = 0; i < userlist.length; i++) {
+      if (username == userlist[i].name) {
+        this.isadmin = userlist[i].admin;
+        this.issuper = userlist[i].super;
+      }
+    }
+
+
     this.temp = userlist;
     for (let i = 0; i < this.members.length; i++) {
       for (let j = 0; j < userlist.length; j++) {
@@ -49,6 +60,8 @@ export class ChannelComponent implements OnInit {
         this.deletetmp.splice(i, 1);
       }
     }
+    this.username = username;
+    console.log(this.username);
     console.log(this.members);
     console.log(this.deletetmp);
   }
@@ -97,5 +110,21 @@ export class ChannelComponent implements OnInit {
     localStorage.setItem("channel", JSON.stringify(channellist));
     alert("delete successful");
     location.reload();
+  }
+
+  checkauth(groupname) {
+    var grouplist = JSON.parse(localStorage.getItem("group"));
+    for (let i = 0; i < grouplist.length; i++) {
+      if (groupname == grouplist[i].name) {
+        for (let j = 0; j < grouplist[i].assis.length; j++) {
+          if (this.username == grouplist[i].assis[j]) {
+            return true;
+          }
+        }
+      }
+    }
+    if(this.isadmin == true|| this.issuper == true){
+      return true;
+    }
   }
 }

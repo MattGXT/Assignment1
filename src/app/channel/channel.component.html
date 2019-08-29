@@ -1,7 +1,7 @@
 <div class="table-title">
     <h3>{{channelname}}</h3>
     <h3>History: {{history}}</h3>
-    <form class="form-horizontal">
+    <form *ngIf = "checkauth(group)" class="form-horizontal">
             <h3>Add User</h3>
             <div class="form-group"> <!-- Full Name -->
                 <label for="full_name_id" class="control-label col-sm-2">Name:</label>
@@ -22,7 +22,7 @@
              
         </form><br><br> 
         
-        <form class="form-horizontal">
+        <form *ngIf = "checkauth(group)" class="form-horizontal">
                 <h3>Remove User</h3>
                 <div class="form-group"> <!-- Full Name -->
                     <label for="full_name_id" class="control-label col-sm-2">Name:</label>
