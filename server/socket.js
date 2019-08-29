@@ -2,7 +2,7 @@ var fs = require('fs');
 
 module.exports = {
 
-    connect: function (io, userlist,channel,group) {
+    connect: function (io, PORT) {
         var rooms = ["room1", "room2", "room3", "room4"];
         var socketRoom = [];
         var socketRoomnum = [];
@@ -11,6 +11,7 @@ module.exports = {
 
         login.on('connection',(socket)=>{
             socket.on('login',()=>{               
+                userlist = JSON.parse(fs.readFileSync('./users.json','utf8'));
                 login.emit('login',JSON.stringify(userlist));
             })
         })
@@ -39,18 +40,59 @@ module.exports = {
                     console.log('updated');
                 })
             })
+
+            socket.on('deleteuser',(username)=>{
+                var list = fs.readFileSync('./users.json','utf8');
+                let userlist = JSON.parse(list);
+                for(let i = 0;i<userlist.length;i++){
+                    if(username == userlist[i].name){
+                        userlist.splice(i,1);
+                    }
+                }
+                fs.writeFileSync('./users.json',JSON.stringify(userlist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+
+                grouplist = JSON.parse(fs.readFileSync('./group.json','utf8'));
+                for(let i = 0;i<grouplist.length;i++){
+                    for(let j = 0;j<grouplist[i].members.length;j++){
+                        if(username == grouplist[i].members[j]){
+                            grouplist[i].members.splice(j,1);
+                        }
+                    }
+                }
+                fs.writeFileSync('./group.json',JSON.stringify(grouplist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+
+                channellist = JSON.parse(fs.readFileSync('./channel.json','utf8'));
+                for(let i = 0;i<channellist.length;i++){
+                    for(let j = 0;j<channellist[i].members.length;j++){
+                        if(username == channellist[i].members[j]){
+                            channellist[i].members.splice(j,1);
+                        }
+                    }
+                }
+                fs.writeFileSync('./channel.json',JSON.stringify(channellist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
         })
 
         const groups = io.of('/group');
 
         groups.on('connection',(socket)=>{
             socket.on('getgroup',()=>{
-                groups.emit('getgroup',JSON.stringify(group));
-                console.log(JSON.stringify(group));
+                grouplist = JSON.parse(fs.readFileSync('./group.json','utf8'));
+                groups.emit('getgroup',JSON.stringify(grouplist));
+                console.log(JSON.stringify(grouplist));
             })
 
             socket.on('addgroup',(group)=>{
-                grouplist = JSON.parse(fs.readFileSync('./group.json'));
+                grouplist = JSON.parse(fs.readFileSync('./group.json','utf8'));
                 grouplist.push(JSON.parse(group));
                 fs.writeFileSync('./group.json',JSON.stringify(grouplist),function(err){
                     if(err) throw err;
@@ -58,17 +100,131 @@ module.exports = {
                 })
             })
 
-            socket.on('getchannel',(groupname)=>{
-                var channellist = [];
-                for(let i = 0; i< channel.length;i++){
-                    if(groupname == channel[i].group){
-                        channellist.push(group[i]);
+            socket.on('removegroup',(groupname,username)=>{
+                grouplist = JSON.parse(fs.readFileSync('./group.json','utf8'));
+                for(let i = 0;i<grouplist.length;i++){
+                    if(groupname == grouplist[i].name){
+                        grouplist.splice(i,1);
                     }
                 }
+                fs.writeFileSync('./group.json',JSON.stringify(grouplist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+
+                //remove the group from group property of user
+                var list = fs.readFileSync('./users.json','utf8');
+                let userlist = JSON.parse(list);
+                for(let i = 0; i< userlist.length;i++){
+                    if(username == userlist[i].name){
+                        for(let j = 0; j< userlist[i].grouplist.length;j++){
+                            if(groupname == userlist[i].grouplist[j]){
+                                userlist[i].grouplist.splice(j,1);
+                            }
+                        }
+                    }
+                }
+                fs.writeFileSync('./users.json',JSON.stringify(userlist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            
+            socket.on('getchannel',()=>{
+                channellist = JSON.parse(fs.readFileSync('./channel.json','utf8'));
                 groups.emit('getchannel',JSON.stringify(channellist));
+            })
+
+            socket.on('addchannel',(channel)=>{
+                channellist = JSON.parse(fs.readFileSync('./channel.json','utf8'));
+                channellist.push(channel);
+                fs.writeFileSync('./channel.json',JSON.stringify(channellist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+                grouplist = JSON.parse(fs.readFileSync('./group.json','utf8'));
+                for(let i = 0;i<grouplist.length;i++){
+                    if(channel.group == grouplist[i].name){
+                       grouplist[i].channels.push(channel.name);
+                    }
+                }
+                fs.writeFileSync('./group.json',JSON.stringify(grouplist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('removechannel',(channelname,groupname)=>{
+                channellist = JSON.parse(fs.readFileSync('./channel.json','utf8'));
+                for(let i = 0; i< channellist.length;i++){
+                    if(channelname == channellist[i].name){
+                        channellist.splice(i,1);
+                    }
+                }
+                fs.writeFileSync('./channel.json',JSON.stringify(channellist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+
+                grouplist = JSON.parse(fs.readFileSync('./group.json','utf8'));
+                for(let i = 0;i<grouplist.length;i++){
+                    if(groupname == grouplist[i].name){
+                        for(let j =0;j<grouplist[i].channels.length;j++){
+                          if(channelname == grouplist[i].channels[j]){
+                            grouplist[i].channels.splice(j,1);
+                          }
+                        }
+                    }
+                }
+
+                fs.writeFileSync('./group.json',JSON.stringify(grouplist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('addusertochannel',(username,channelname)=>{
+                channellist = JSON.parse(fs.readFileSync('./channel.json','utf8'));
+                for(let i = 0; i< channellist.length;i++){
+                    if(channelname == channellist[i].name){
+                        channellist[i].members.push(username);
+                    }
+                }
+                fs.writeFileSync('./channel.json',JSON.stringify(channellist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('deleteusertochannel',(username,channelname)=>{
+                channellist = JSON.parse(fs.readFileSync('./channel.json','utf8'));
+                for(let i = 0; i< channellist.length;i++){
+                    if(channelname == channellist[i].name){
+                        for(let j = 0;j < channellist[i].members.length;j++){
+                            if(username == channellist[i].members[j]){
+                                channellist[i].members.splice(j,1);
+                            }
+                        }
+                    }
+                }
+                fs.writeFileSync('./channel.json',JSON.stringify(channellist),function(err){
+                    if(err) throw err;
+                    console.log('updated');
+                })
             })
         })
     
+
+
+
+
+
+
+
+
+
+        // Here are unfinished chat functions.
         const chat = io.of('/chat');
 
         chat.on('connection', (socket) => {

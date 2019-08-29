@@ -24,7 +24,35 @@ export class GroupService {
     this.socket.on("getgroup",res =>next(res));
   }
 
+  getchannel(){
+    this.socket.emit('getchannel');
+  }
+
+  getchanneled(next){
+    this.socket.on("getchannel",res =>next(res));
+  }
+
   addgroup(group){
     this.socket.emit("addgroup",group);
+  }
+
+  removegroup(groupname,username){
+    this.socket.emit("removegroup",groupname,username);
+  }
+
+  addchannel(channel){
+    this.socket.emit("addchannel",channel);
+  }
+  
+  removechannel(channelname,groupname){
+    this.socket.emit("removechannel",channelname,groupname);
+  }
+
+  addusertochannel(username,channelname){
+    this.socket.emit("addusertochannel",username,channelname);
+  }
+
+  deleteusertochannel(username,channelname){
+    this.socket.emit("deleteusertochannel",username,channelname);
   }
 }

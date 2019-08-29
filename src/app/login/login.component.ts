@@ -15,16 +15,19 @@ export class LoginComponent implements OnInit {
   username:string = "";
   user = [];
   groups = [];
+  channels = [];
 
-  constructor(private socketservice:LoginService, private router: Router, private groupservice:GroupService) { }
+  constructor(private loginservice:LoginService, private router: Router, private groupservice:GroupService) { }
 
   ngOnInit() {
-    this.socketservice.initSocket();
-    this.socketservice.login();
-    this.socketservice.logined((res)=>{this.user = JSON.parse(res)}); 
+    this.loginservice.initSocket();
+    this.loginservice.login();
+    this.loginservice.logined((res)=>{this.user = JSON.parse(res)}); 
     this.groupservice.initSocket();
     this.groupservice.getgroup();
     this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
+    this.groupservice.getchannel();
+    this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
   }
 
   login(){
@@ -35,6 +38,7 @@ export class LoginComponent implements OnInit {
           localStorage.setItem("user", JSON.stringify(this.user));
           localStorage.setItem("username", this.username);
           localStorage.setItem("group", JSON.stringify(this.groups));
+          localStorage.setItem("channel", JSON.stringify(this.channels));
           this.router.navigate(['/group']);
           a = 1;
           break;

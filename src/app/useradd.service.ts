@@ -23,4 +23,8 @@ export class UseraddService {
   addgroup(username,groupname){
     this.socket.emit('addgroup',username,groupname);
   }
+
+  delete(username){
+    this.socket.emit('deleteuser',username);
+  }
 }
