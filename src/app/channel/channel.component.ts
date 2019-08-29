@@ -14,6 +14,7 @@ export class ChannelComponent implements OnInit {
   deletetmp = [];
   addusername = "";
   deleteusername = "";
+  group = "";
 
 
 
@@ -28,6 +29,7 @@ export class ChannelComponent implements OnInit {
       if (this.channelname == channel[i].name) {
         this.history = channel[i].history;
         this.members = channel[i].members;
+        this.group = channel[i].group;
       }
     }
     var userlist = JSON.parse(localStorage.getItem('user'));
@@ -53,11 +55,26 @@ export class ChannelComponent implements OnInit {
 
 
   adduser() {
-    this.groupservice.addusertochannel(this.addusername, this.channelname);
+    // add username to channel
+    this.groupservice.addusertochannel(this.addusername, this.channelname,this.group);
     var channellist = JSON.parse(localStorage.getItem("channel"));
     for (let i = 0; i < channellist.length; i++) {
       if (this.channelname == channellist[i].name) {
         channellist[i].members.push(this.addusername);
+      }
+    }
+    //add username to group property
+    var grouplist = JSON.parse(localStorage.getItem("group"));
+    for(let i = 0;i<grouplist.length;i++){
+      if(this.group == grouplist[i].name){
+        grouplist[i].members.push(this.addusername);
+      }
+    }
+    // add groupname to user property
+    var userlist = JSON.parse(localStorage.getItem('user'));
+    for(let i = 0;i<userlist.length;i++){
+      if(this.addusername == userlist[i].name){
+        userlist[i].grouplist.push(this.group);
       }
     }
     localStorage.setItem("channel", JSON.stringify(channellist));

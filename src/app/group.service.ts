@@ -48,8 +48,8 @@ export class GroupService {
     this.socket.emit("removechannel",channelname,groupname);
   }
 
-  addusertochannel(username,channelname){
-    this.socket.emit("addusertochannel",username,channelname);
+  addusertochannel(username,channelname,groupname){
+    this.socket.emit("addusertochannel",username,channelname,groupname);
   }
 
   deleteusertochannel(username,channelname){
