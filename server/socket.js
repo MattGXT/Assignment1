@@ -85,12 +85,14 @@ module.exports = {
         const groups = io.of('/group');
 
         groups.on('connection', (socket) => {
+            //get group from grouplist
             socket.on('getgroup', () => {
                 grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
                 groups.emit('getgroup', JSON.stringify(grouplist));
                 console.log(JSON.stringify(grouplist));
             })
 
+            // add group to grouplist
             socket.on('addgroup', (group) => {
                 grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
                 grouplist.push(JSON.parse(group));

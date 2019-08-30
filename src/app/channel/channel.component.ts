@@ -35,11 +35,11 @@ export class ChannelComponent implements OnInit {
     this.addservice.initSocket();
     var username = localStorage.getItem('username');
     this.groupservice.getgroup();
-    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
+    this.groupservice.getgrouped((res) => { this.groups = JSON.parse(res) });
     this.channelname = JSON.parse(localStorage.getItem("channelname"));
     this.groupservice.getchannel();
     this.groupservice.getchanneled((res) => {
-    this.channels = JSON.parse(res)
+      this.channels = JSON.parse(res)
       for (let i = 0; i < this.channels.length; i++) {
         if (this.channelname == this.channels[i].name) {
           this.history = this.channels[i].history;
@@ -47,25 +47,29 @@ export class ChannelComponent implements OnInit {
           this.group = this.channels[i].group;
         }
       }
-      this.deletetmp = this.members;
-    for (let i = 0; i < this.deletetmp.length; i++) {
-      if (username == this.deletetmp[i]) {
-        this.deletetmp.splice(i, 1);
+      console.log(this.members);
+      for (let i = 0; i < this.members.length; i++) {
+        this.deletetmp.push(this.members[i]);
       }
-    }
+      for (let i = 0; i < this.deletetmp.length; i++) {
+        if (username == this.deletetmp[i]) {
+          this.deletetmp.splice(i, 1);
+        }
+      }
+      console.log(this.deletetmp);
     });
 
 
     this.loginservice.login();
     this.loginservice.logined((res) => {
-    this.userlist = JSON.parse(res)
+      this.userlist = JSON.parse(res)
       for (let i = 0; i < this.userlist.length; i++) {
         if (username == this.userlist[i].name) {
           this.isadmin = this.userlist[i].admin;
           this.issuper = this.userlist[i].super;
         }
       }
-
+      console.log(this.members)
       this.temp = this.userlist;
       for (let i = 0; i < this.members.length; i++) {
         for (let j = 0; j < this.userlist.length; j++) {
@@ -74,13 +78,9 @@ export class ChannelComponent implements OnInit {
           }
         }
       }
+      console.log(this.temp);
     });
-
-    
     this.username = username;
-    console.log(this.username);
-    console.log(this.members);
-    console.log(this.deletetmp);
   }
 
 

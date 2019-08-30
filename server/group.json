@@ -1,1 +1,1 @@
-[{"name":"group1","members":["super","user1","admin","user1","user1"],"channels":["channel1"],"assis":["user1"]},{"name":"admingroup","members":["admin","user1"],"channels":["ch"],"assis":["user1"]},{"name":"test1","members":["super","user1"],"channels":["11"],"assis":[]}]
+[{"name":"group1","members":["super","user1"],"channels":["channel1"],"assis":[]}]
