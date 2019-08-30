@@ -2,26 +2,48 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.2.0.
 
-## Development server
+## Git
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+ I divide this assignment into a few parts. I pushed the changes to GitHub after I finished some part of functions. This will help me to check for changes and find bugs. I added the correct comment for each push to ensure that I can find a solution to the problem.
 
-## Code scaffolding
+## Data structures
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+ Here are three classes to save data.
 
-## Build
+Users {
+Name: string
+Admin: bool
+Super: bool
+Email: string
+Grouplist: array
+Admingrouplist: array
+}
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Group {
+Name: string
+Members: array
+Channels: array
+Assis: array
+}
 
-## Running unit tests
+Channel {
+Name: string
+Group: string
+Members: array
+History: string
+}
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Angular architecture
 
-## Running end-to-end tests
+1. Components:
+   - Login
+     Group
+     Channel
+     Chat (haven’t done)
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+2. Services:
+    - Login (get the current userlists)
+      Group (get or modify groups and channels)
+      Useradd (add or delete new user and add new group)
+      Socket (for chat part)
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
