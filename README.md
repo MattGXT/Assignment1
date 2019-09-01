@@ -164,6 +164,16 @@ History: string
     - return err or console.log('updated');
     - delete user form channel
 
+14. socket.on('deluser', (groupname, username))
+    - parameter: username(string), groupname(string)
+    - return err or console.log('updated');
+    - delete user from group
+
+15. socket.on('adduser', (groupname, username))
+    - parameter: username(string), groupname(string)
+    - return err or console.log('updated');
+    - add user to group
+
 ## Interaction
 
 angular component page will be updated because of initsocket and get data of different sockets from the server in ngoninit. Data saved in server side, once the angular need data, it will send request through emit to server socket. Server socket receive this request and tread the file in server, get data from it then send it back to the angular. Angular receive data and update it on the page. The functions like add user or modify the group just send the request to server side with parameters and the server side write the data to the file. Then the angular page will update once the file content changed.
