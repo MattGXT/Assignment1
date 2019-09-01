@@ -1,1 +1,1 @@
-[{"name":"super","super":true,"admin":true,"email":"","grouplist":["group1"],"admingrouplist":["group1"]},{"name":"user1","super":false,"admin":true,"email":"","grouplist":["group1"],"admingrouplist":[]}]
+[{"name":"super","super":true,"admin":true,"email":"","grouplist":[],"admingrouplist":[]}]

@@ -6,9 +6,7 @@
     <thead>
     <tr>
     <th class="text-left">Name</th>
-    <!--
     <th class="text-left">Members</th>
-    //-->
     <th class="text-left">Channels</th>
     <th class="text-left">Manage</th>
     <th class="text-left">Assis</th>
@@ -18,9 +16,21 @@
     <ng-container *ngFor = "let group of showngroups">
     <tr>
     <td class="text-left">{{group.name}}</td>
-    <!--
-    <td class="text-left">{{group.members}}</td>
-    //-->
+    <td class="text-left">
+        {{group.members}}
+        <select [(ngModel)] = "aname" name = "aname" *ngIf = "isadmin||issuper">
+                <option *ngFor = "let user of getaddgroupuser(group.members)">
+                    {{user}}
+                </option>
+            </select>
+            <button class="btn btn-primary" (click) = "adduser(group.name)" *ngIf = "isadmin||issuper">Add member</button><br>
+            <select [(ngModel)] = "dname" name = "dname" *ngIf = "isadmin||issuper">
+                    <option *ngFor = "let user of group.members">
+                        {{user}}
+                    </option>
+                </select>
+                <button class="btn btn-primary" (click) = "deluser(group.name)" *ngIf = "isadmin||issuper">Delete member</button><br>
+    </td>
     <td class="text-left"><div *ngFor = "let channel of group.channels"><a href = "/channel" (click) = "go(channel)">{{channel}}</a><button *ngIf = "isadmin||issuper" class="btn btn-primary" (click) = "removechannel(channel,group.name)">Removechannel</button></div></td>
     <td>
     <button class="btn btn-primary" (click) = "remove(group.name)"  *ngIf = "isadmin">Remove</button><br>

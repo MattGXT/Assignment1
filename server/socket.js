@@ -132,7 +132,56 @@ module.exports = {
                 })
             })
 
-            socket.on('addassistogroup', (groupname,assisname) => {
+            socket.on('adduser', (groupname, username) => {
+                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
+                for (let i = 0; i < grouplist.length; i++) {
+                    if (groupname == grouplist[i].name) {
+                        grouplist[i].members.push(username);
+                    }
+                }
+                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
+                    if (err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('deluser', (groupname, username) => {
+                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
+                for (let i = 0; i < grouplist.length; i++) {
+                    if (groupname == grouplist[i].name) {
+                        for (let j = 0; j < grouplist[i].members.length; j++) {
+                            if (username == grouplist[i].members[j]) {
+                                grouplist[i].members.splice(j, 1);
+                            }
+                        }
+                        if (grouplist[i].members.length == 0) {
+                            grouplist.splice(i, 1);
+                            var list = fs.readFileSync('./users.json', 'utf8');
+                            let userlist = JSON.parse(list);
+                            for (let i = 0; i < userlist.length; i++) {
+                                if (username == userlist[i].name) {
+                                    for (let j = 0; j < userlist[i].grouplist.length; j++) {
+                                        if (groupname == userlist[i].grouplist[j]) {
+                                            userlist[i].grouplist.splice(j, 1);
+                                        }
+                                    }
+                                }
+                            }
+                            fs.writeFileSync('./users.json', JSON.stringify(userlist), function (err) {
+                                if (err) throw err;
+                                console.log('updated');
+                            })
+                        }
+                    }
+                }
+
+                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
+                    if (err) throw err;
+                    console.log('updated');
+                })
+            })
+
+            socket.on('addassistogroup', (groupname, assisname) => {
                 grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
                 for (let i = 0; i < grouplist.length; i++) {
                     if (groupname == grouplist[i].name) {

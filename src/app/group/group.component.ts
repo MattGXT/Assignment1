@@ -32,6 +32,8 @@ export class GroupComponent implements OnInit {
   assislist = [];
   assisname = "";
   userlist = [];
+  aname = "";
+  dname = "";
 
 
 
@@ -40,6 +42,7 @@ export class GroupComponent implements OnInit {
 
   ngOnInit() {
     let username = localStorage.getItem('username');
+    this.username = username;
     this.loginservice.initSocket();
     this.addservice.initSocket();
     this.groupservice.initSocket();
@@ -177,6 +180,18 @@ export class GroupComponent implements OnInit {
     location.reload();
   }
 
+  adduser(groupname){
+    this.groupservice.addusertogroup(groupname,this.aname);
+    alert("successful");
+    location.reload();
+  }
+
+  deluser(groupname){
+    this.groupservice.deluserofgroup(groupname,this.dname);
+    alert("successful");
+    location.reload();
+  }
+
   //check the current is assis,admin,super or not
   checkauth(groupname) {
     for (let i = 0; i < this.grouplist.length; i++) {
@@ -191,5 +206,22 @@ export class GroupComponent implements OnInit {
     if(this.isadmin == true|| this.issuper == true){
       return true;
     }
+  }
+
+
+  getaddgroupuser(groupmember){
+    var userlist = this.userlist;
+    var addgroupuser = [];
+    for (let i = 0; i < userlist.length; i++) {
+      addgroupuser.push(userlist[i].name);
+    }
+    for (let i = 0; i < addgroupuser.length; i++){
+      for (let j = 0; j < groupmember.length; j++){
+        if(groupmember[j] == addgroupuser[i]){
+          addgroupuser.splice(i,1);
+        }
+      }
+    }
+    return addgroupuser;
   }
 }

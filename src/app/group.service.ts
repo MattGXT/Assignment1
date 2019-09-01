@@ -59,4 +59,12 @@ export class GroupService {
   addassistogroup(groupname,assisname){
     this.socket.emit("addassistogroup",groupname,assisname);
   }
+
+  addusertogroup(groupname,username){
+    this.socket.emit("adduser",groupname,username);
+  }
+
+  deluserofgroup(groupname,username){
+    this.socket.emit("deluser",groupname,username);
+  }
 }
