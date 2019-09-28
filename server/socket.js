@@ -3,7 +3,6 @@ var fs = require('fs');
 module.exports = {
 
     connect: function (app, io, db) {
-        var rooms = ["room1", "room2", "room3", "room4"];
         var socketRoom = [];
         var socketRoomnum = [];
 
@@ -78,13 +77,11 @@ module.exports = {
                         const collection2 = db.collection('Group');
                         collection2.find({}).toArray((err, data) => {
                             groups.emit('getgroup', JSON.stringify(data));
-                            console.log('sss',data);
                         })
                     } else {
                         const collection2 = db.collection('Group');
                         collection2.find({members:username}).toArray((err, data) => {
                             groups.emit('getgroup', JSON.stringify(data));
-                            console.log(data);
                         })
                     }
                 })
@@ -220,7 +217,11 @@ module.exports = {
         //Chat functions.
         const chat = io.of('/chat');
         chat.on('connection', (socket) => {
-            socket.on('message', (message) => {
+            socket.on('message', (message,channelname) => {
+                const collection = db.collection('Channel');
+                collection.update({ name: channelname }, { $push: { history: message } }, () => {
+                    console.log("update history successful")
+                })
                 for (i = 0; i < socketRoom.length; i++) {
                     if (socketRoom[i][0] == socket.id) {
                         chat.to(socketRoom[i][1]).emit('message', message);

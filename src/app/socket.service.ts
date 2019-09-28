@@ -53,8 +53,8 @@ export class SocketService {
     this.socket.on('notice',res => next(res));
   }
 
-  sendMessage(message: String): void{
-    this.socket.emit('message',message);
+  sendMessage(message,channelname): void{
+    this.socket.emit('message',message,channelname);
   }
 
   getMessage(next){

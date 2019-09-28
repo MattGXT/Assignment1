@@ -11,7 +11,7 @@ import {SocketService} from '../socket.service';
 })
 export class ChannelComponent implements OnInit {
   channelname = "";
-  history = "";
+  history = [];
   members = [];
   temp = [];
   deletetmp = [];
@@ -24,9 +24,10 @@ export class ChannelComponent implements OnInit {
   channels = [];
   userlist = [];
   groups = [];
-  messages:string[] = [];
+  messages = [];
   isinRoom = false;
   roomnotice: string = "";
+  messagecontent = '';
 
 
 
@@ -53,7 +54,7 @@ export class ChannelComponent implements OnInit {
           this.group = this.channels[i].group;
         }
       }
-      console.log(this.members);
+      console.log(this.history);
       for (let i = 0; i < this.members.length; i++) {
         this.deletetmp.push(this.members[i]);
       }
@@ -135,5 +136,11 @@ export class ChannelComponent implements OnInit {
     this.roomnotice = "";
     this.messages = [];
     this.isinRoom = false;
+  }
+
+  chat(message){
+    var x = [this.username,message]
+    this.socketservice.sendMessage(x,this.channelname);
+    this.messagecontent = null;
   }
 }

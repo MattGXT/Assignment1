@@ -10,7 +10,9 @@
         <button *ngIf = "isinRoom" (click) = "leave()" class = "btn btn-primary">Leave</button>&nbsp;
     </div>
     <div *ngIf = "isinRoom">
-        <h3>History: {{history}}</h3>
+        <h3>History:</h3>
+        <p  *ngFor = "let message of history"> {{message[0]}}:{{message[1]}}</p>
+        <p *ngFor = "let message of messages">{{message[0]}}:{{message[1]}}</p>
         <h3>Notices:</h3>
     {{roomnotice}}<br>
     </div>
