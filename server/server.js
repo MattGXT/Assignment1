@@ -22,5 +22,6 @@ MongoClient.connect(url, {poolSize:10,useNewUrlParser: true,useUnifiedTopology: 
         const db = client.db(dbName);
         sockets.connect(app,io,db);
         require('./routes/create.js')(db);
+        require('./routes/getgroup.js')(db,app);
         require('./listen.js')(http);
 });

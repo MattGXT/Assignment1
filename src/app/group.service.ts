@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import * as io from 'socket.io-client';
 import {nextTick} from 'q';
 
@@ -10,14 +11,16 @@ const SERVER_URL = 'http://localhost:3000/group';
 export class GroupService {
   private socket;
 
-  constructor() { }
+  constructor(private http:HttpClient) { }
 
   initSocket(): void{
     this.socket = io(SERVER_URL);
   }
 
-  getgroup(username):void{
-    this.socket.emit('getgroup',username);
+  getgroup(username){
+    console.log(username);
+    return this.http.post<any>('http://localhost:3000/api/getgroup', {'username':username});
+    //this.socket.emit('getgroup',username);
   }
 
   getgrouped(next){

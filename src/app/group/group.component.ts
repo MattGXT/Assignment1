@@ -22,7 +22,7 @@ export class GroupComponent implements OnInit {
   isassis = false;
   grouplist = [];
   admingrouplist = [];
-  groups = [];
+  groups: any;
   showngroups = [];
   groupname = "";
   username = "";
@@ -62,8 +62,9 @@ export class GroupComponent implements OnInit {
       this.assislist = this.userlist;
     }); 
     this.groupservice.initSocket();
-    this.groupservice.getgroup(username);
-    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
+    this.groupservice.getgroup(username).subscribe((data)=>{
+      this.groups = data});
+    //this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
     this.groupservice.getchannel();
     this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
   }

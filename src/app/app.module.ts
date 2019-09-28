@@ -8,6 +8,7 @@ import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
 import { GroupComponent } from './group/group.component';
 import { ChannelComponent } from './channel/channel.component';
+import {HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { ChannelComponent } from './channel/channel.component';
     BrowserModule,
     AppRoutingModule,
     MatTabsModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
