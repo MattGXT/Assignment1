@@ -13,6 +13,7 @@ import {GroupService} from '../group.service';
 export class LoginComponent implements OnInit {
 
   username:string = "";
+  password:number;
   user = [];
   groups = [];
   channels = [];
@@ -33,7 +34,7 @@ export class LoginComponent implements OnInit {
   login(){
     var a = 0;
       for(let i = 0;i< this.user.length;i++){
-        if(this.username == this.user[i].name){
+        if(this.username == this.user[i].name&&this.password ==this.user[i].password){
           alert("successful");
           localStorage.setItem("username", this.username);
           this.router.navigate(['/group']);
