@@ -2,304 +2,205 @@ var fs = require('fs');
 
 module.exports = {
 
-    connect: function (io, PORT) {
+    connect: function (app, io, db) {
         var rooms = ["room1", "room2", "room3", "room4"];
         var socketRoom = [];
         var socketRoomnum = [];
 
+        //Get user from database
         const login = io.of('/login');
-
         login.on('connection', (socket) => {
             socket.on('login', () => {
-                userlist = JSON.parse(fs.readFileSync('./users.json', 'utf8'));
-                login.emit('login', JSON.stringify(userlist));
+                const collection = db.collection('User');
+                collection.find({}).toArray((err, data) => {
+                    login.emit('login', JSON.stringify(data));
+                })
             })
         })
+
 
         const useradd = io.of('/useradd');
-
         useradd.on('connection', (socket) => {
+            // Add user to database
             socket.on('add', (user) => {
-                fs.writeFileSync('./users.json', user, function (err) {
-                    if (err) throw err;
-                    console.log('updated');
-                })
+                const collection = db.collection('User');
+                thisuser = JSON.parse(user);
+                collection.find({ 'name': thisuser.name }).count((err, count) => {
+                    if (count == 0) {
+                        //if no duplicate
+                        collection.insertOne(thisuser, (err, dbres) => {
+                            if (err) throw err;
+                        })
+                    } else {
+                        //On Error send back error message
+                        console.log("DUPLICATE")
+                    }
+                });
             })
 
+            //add group to database
             socket.on('addgroup', (username, groupname) => {
-                var list = fs.readFileSync('./users.json', 'utf8');
-                let userlist = JSON.parse(list);
-                for (let i = 0; i < userlist.length; i++) {
-                    if (username == userlist[i].name) {
-                        userlist[i].grouplist.push(groupname);
-                        userlist[i].admingrouplist.push(groupname);
-                    }
-                }
-                fs.writeFileSync('./users.json', JSON.stringify(userlist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                const collection = db.collection('User');
+                collection.updateOne({ name: username }, { $push: { grouplist: groupname, admingrouplist: groupname } }, () => {
+                    console.log("add groupname to userlist successful")
                 })
             })
 
+            //Delete user from User,Group and Collections
             socket.on('deleteuser', (username) => {
-                var list = fs.readFileSync('./users.json', 'utf8');
-                let userlist = JSON.parse(list);
-                for (let i = 0; i < userlist.length; i++) {
-                    if (username == userlist[i].name) {
-                        userlist.splice(i, 1);
-                    }
-                }
-                fs.writeFileSync('./users.json', JSON.stringify(userlist), function (err) {
+                const collection = db.collection('User');
+                collection.deleteOne({ name: username }, (err, docs) => {
                     if (err) throw err;
-                    console.log('updated');
+                    console.log("delete from userlist successful")
                 })
 
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    for (let j = 0; j < grouplist[i].members.length; j++) {
-                        if (username == grouplist[i].members[j]) {
-                            grouplist[i].members.splice(j, 1);
-                        }
-                    }
-                }
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                const collection2 = db.collection('Group');
+                collection2.update({}, { $pull: { members: username } }, () => {
+                    console.log("remove username from Group successful")
                 })
 
-                channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));
-                for (let i = 0; i < channellist.length; i++) {
-                    for (let j = 0; j < channellist[i].members.length; j++) {
-                        if (username == channellist[i].members[j]) {
-                            channellist[i].members.splice(j, 1);
-                        }
-                    }
-                }
-                fs.writeFileSync('./channel.json', JSON.stringify(channellist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                const collection3 = db.collection('Channel');
+                collection3.update({}, { $pull: { members: username } }, () => {
+                    console.log("remove username from Channel successful")
                 })
             })
         })
 
-        const groups = io.of('/group');
 
+
+        const groups = io.of('/group');
         groups.on('connection', (socket) => {
             //get group from grouplist
             socket.on('getgroup', () => {
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                groups.emit('getgroup', JSON.stringify(grouplist));
-                console.log(JSON.stringify(grouplist));
+                const collection = db.collection('Group');
+                collection.find({}).toArray((err, data) => {
+                    groups.emit('getgroup', JSON.stringify(data));
+                })
             })
 
             // add group to grouplist
             socket.on('addgroup', (group) => {
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                grouplist.push(JSON.parse(group));
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
+                const collection = db.collection('Group');
+                thisgroup = JSON.parse(group);
+                collection.insertOne(thisgroup, (err, dbres) => {
                     if (err) throw err;
-                    console.log('updated');
+                    console.log("add group successful")
                 })
             })
 
             socket.on('removegroup', (groupname, username) => {
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (groupname == grouplist[i].name) {
-                        grouplist.splice(i, 1);
-                    }
-                }
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
+                //Remove group from Group
+                const collection = db.collection('Group');
+                collection.deleteOne({ name: groupname }, (err, docs) => {
                     if (err) throw err;
-                    console.log('updated');
+                    console.log("remove group successful")
                 })
 
-                //remove the group from group property of user
-                var list = fs.readFileSync('./users.json', 'utf8');
-                let userlist = JSON.parse(list);
-                for (let i = 0; i < userlist.length; i++) {
-                    if (username == userlist[i].name) {
-                        for (let j = 0; j < userlist[i].grouplist.length; j++) {
-                            if (groupname == userlist[i].grouplist[j]) {
-                                userlist[i].grouplist.splice(j, 1);
-                            }
-                        }
-                    }
-                }
-                fs.writeFileSync('./users.json', JSON.stringify(userlist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                //remove group from User
+                const collection2 = db.collection('User');
+                collection2.update({}, { $pull: { groulist: groupname, admingrouplist: groupname } }, () => {
+                    console.log("remove group from User successful")
                 })
             })
 
+            //add username to Group members
             socket.on('adduser', (groupname, username) => {
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (groupname == grouplist[i].name) {
-                        grouplist[i].members.push(username);
-                    }
-                }
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                const collection = db.collection('Group');
+                collection.update({ name: groupname }, { $push: { members: username } }, () => {
+                    console.log("add member to Group successful")
                 })
             })
 
             socket.on('deluser', (groupname, username) => {
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (groupname == grouplist[i].name) {
-                        for (let j = 0; j < grouplist[i].members.length; j++) {
-                            if (username == grouplist[i].members[j]) {
-                                grouplist[i].members.splice(j, 1);
-                            }
-                        }
-                        if (grouplist[i].members.length == 0) {
-                            grouplist.splice(i, 1);
-                            var list = fs.readFileSync('./users.json', 'utf8');
-                            let userlist = JSON.parse(list);
-                            for (let i = 0; i < userlist.length; i++) {
-                                if (username == userlist[i].name) {
-                                    for (let j = 0; j < userlist[i].grouplist.length; j++) {
-                                        if (groupname == userlist[i].grouplist[j]) {
-                                            userlist[i].grouplist.splice(j, 1);
-                                        }
-                                    }
-                                }
-                            }
-                            fs.writeFileSync('./users.json', JSON.stringify(userlist), function (err) {
-                                if (err) throw err;
-                                console.log('updated');
-                            })
-                        }
-                    }
-                }
+                //delete user from members of Group
+                const collection = db.collection('Group');
+                collection.update({ name: groupname }, { $pull: { members: username } }, () => {
+                    console.log("delete user from members successful")
+                })
 
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                //remove groupname of grouplist from User
+                const collection2 = db.collection('User');
+                collection2.update({ name: username }, { $pull: { grouplist: groupname } }, () => {
+                    console.log("remove groupname of grouplist from User successful")
                 })
             })
 
+            //Set user to be group assis
             socket.on('addassistogroup', (groupname, assisname) => {
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (groupname == grouplist[i].name) {
-                        grouplist[i].assis.push(assisname);
-                    }
-                }
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                const collection = db.collection('Group');
+                collection.update({ name: groupname }, { $pull: { assis: assisname } }, () => {
+                    console.log("add user to assis successful")
                 })
             })
 
 
+            //Return the channel list
             socket.on('getchannel', () => {
-                channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));
-                groups.emit('getchannel', JSON.stringify(channellist));
+                const collection = db.collection('Channel');
+                collection.find({}).toArray((err, data) => {
+                    groups.emit('getchannel', JSON.stringify(data));
+                })
             })
 
             socket.on('addchannel', (channel) => {
-                channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));
-                channellist.push(channel);
-                fs.writeFileSync('./channel.json', JSON.stringify(channellist), function (err) {
+                const collection = db.collection('Channel');
+                thischannel = channel;
+                collection.insertOne(thischannel, (err, dbres) => {
                     if (err) throw err;
-                    console.log('updated');
+                    console.log("add channel successful")
                 })
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (channel.group == grouplist[i].name) {
-                        grouplist[i].channels.push(channel.name);
-                    }
-                }
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+
+                const collection2 = db.collection('Group');
+                collection2.update({ name: thischannel.group }, { $push: { channels: thischannel.name } }, () => {
+                    console.log("add channel to Group successful")
                 })
             })
 
             socket.on('removechannel', (channelname, groupname) => {
-                channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));
-                for (let i = 0; i < channellist.length; i++) {
-                    if (channelname == channellist[i].name) {
-                        channellist.splice(i, 1);
-                    }
-                }
-                fs.writeFileSync('./channel.json', JSON.stringify(channellist), function (err) {
+                //Remove channel from Channel
+                const collection = db.collection('Channel');
+                collection.deleteOne({ name: channelname }, (err, docs) => {
                     if (err) throw err;
-                    console.log('updated');
+                    console.log("remove channel successful")
                 })
 
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (groupname == grouplist[i].name) {
-                        for (let j = 0; j < grouplist[i].channels.length; j++) {
-                            if (channelname == grouplist[i].channels[j]) {
-                                grouplist[i].channels.splice(j, 1);
-                            }
-                        }
-                    }
-                }
-
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                //Remove channel from Group
+                const collection2 = db.collection('Group');
+                collection2.update({ name: groupname }, { $pull: { channels: channelname } }, () => {
+                    console.log("remove channel from Group successful")
                 })
             })
 
             socket.on('addusertochannel', (username, channelname, groupname) => {
-                // add username to channel
-                channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));
-                for (let i = 0; i < channellist.length; i++) {
-                    if (channelname == channellist[i].name) {
-                        channellist[i].members.push(username);
-                    }
-                }
-                fs.writeFileSync('./channel.json', JSON.stringify(channellist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                //Add username to channel
+                const collection = db.collection('Channel');
+                collection.update({ name: channelname }, { $push: { members: username } }, () => {
+                    console.log("add user to Channel successful")
                 })
-                //add username to group property
-                grouplist = JSON.parse(fs.readFileSync('./group.json', 'utf8'));
-                for (let i = 0; i < grouplist.length; i++) {
-                    if (groupname == grouplist[i].name) {
-                        grouplist[i].members.push(username);
-                    }
-                }
-                fs.writeFileSync('./group.json', JSON.stringify(grouplist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
-                })
-                // add groupname to user property
-                var userlist = JSON.parse(fs.readFileSync('./users.json', 'utf8'));
-                for (let i = 0; i < userlist.length; i++) {
-                    if (username == userlist[i].name) {
-                        userlist[i].grouplist.push(groupname);
-                    }
-                }
-                fs.writeFileSync('./users.json', JSON.stringify(userlist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
-                })
+                //Add username to group property
+                const collection2 = db.collection('Group');
+                collection2.find({ name: groupname, members: username }).count((err, count) => {
+                    if (count == 0) {
+                        //if no duplicate
+                        collection2.update({ name: groupname }, { $push: { members: username } }, () => {
+                            console.log("add user to Group successful")
+                        })
 
+                        // add groupname to user property
+                        const collection3 = db.collection('User');
+                        collection3.update({ name: username }, { $push: { grouplist: groupname } }, () => {
+                            console.log("add group to user successful")
+                        })
+                    }
+                });
             })
 
             socket.on('deleteusertochannel', (username, channelname) => {
-                channellist = JSON.parse(fs.readFileSync('./channel.json', 'utf8'));
-                for (let i = 0; i < channellist.length; i++) {
-                    if (channelname == channellist[i].name) {
-                        for (let j = 0; j < channellist[i].members.length; j++) {
-                            if (username == channellist[i].members[j]) {
-                                channellist[i].members.splice(j, 1);
-                            }
-                        }
-                    }
-                }
-                fs.writeFileSync('./channel.json', JSON.stringify(channellist), function (err) {
-                    if (err) throw err;
-                    console.log('updated');
+                const collection = db.collection('Channel');
+                collection.update({ name: channelname }, { $pull: { members: username } }, () => {
+                    console.log("remove user successful")
                 })
+
             })
         })
 

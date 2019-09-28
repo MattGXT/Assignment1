@@ -16,6 +16,7 @@ export class GroupComponent implements OnInit {
   email = "";
   name = "";
   admin = "";
+  password:number;
   issuper = false;
   isadmin = false;
   isassis = false;
@@ -89,7 +90,8 @@ export class GroupComponent implements OnInit {
         admin: true,
         email: this.email,
         grouplist: [],
-        admingrouplist: []
+        admingrouplist: [],
+        password: this.password
       }
     } else if (this.admin == "super") {
       var newuser = {
@@ -98,7 +100,8 @@ export class GroupComponent implements OnInit {
         admin: true,
         email: this.email,
         grouplist: [],
-        admingrouplist: []
+        admingrouplist: [],
+        password: this.password
       }
     } else {
       var newuser = {
@@ -107,12 +110,13 @@ export class GroupComponent implements OnInit {
         admin: false,
         email: this.email,
         grouplist: [],
-        admingrouplist: []
+        admingrouplist: [],
+        password: this.password
       }
     }
     this.userlist.push(newuser);
     let newupload = JSON.stringify(this.userlist);
-    this.addservice.add(newupload);
+    this.addservice.add(JSON.stringify(newuser));
     location.reload();
   }
 
