@@ -1,13 +1,14 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { MatTabsModule } from '@angular/material';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
 import { GroupComponent } from './group/group.component';
 import { ChannelComponent } from './channel/channel.component';
+
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { ChannelComponent } from './channel/channel.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    MatTabsModule,
     FormsModule
   ],
   providers: [],

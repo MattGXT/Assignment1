@@ -71,10 +71,22 @@ module.exports = {
         const groups = io.of('/group');
         groups.on('connection', (socket) => {
             //get group from grouplist
-            socket.on('getgroup', () => {
-                const collection = db.collection('Group');
-                collection.find({}).toArray((err, data) => {
-                    groups.emit('getgroup', JSON.stringify(data));
+            socket.on('getgroup', (username) => {
+                const collection = db.collection('User');
+                collection.find({ name: username }).toArray((err, data) => {
+                    if (data.super == true) {
+                        const collection2 = db.collection('Group');
+                        collection2.find({}).toArray((err, data) => {
+                            groups.emit('getgroup', JSON.stringify(data));
+                            console.log('sss',data);
+                        })
+                    } else {
+                        const collection2 = db.collection('Group');
+                        collection2.find({members:username}).toArray((err, data) => {
+                            groups.emit('getgroup', JSON.stringify(data));
+                            console.log(data);
+                        })
+                    }
                 })
             })
 
@@ -205,17 +217,8 @@ module.exports = {
         })
 
 
-
-
-
-
-
-
-
-
-        // Here are unfinished chat functions.
+        //Chat functions.
         const chat = io.of('/chat');
-
         chat.on('connection', (socket) => {
             socket.on('message', (message) => {
                 for (i = 0; i < socketRoom.length; i++) {
@@ -226,38 +229,8 @@ module.exports = {
             });
 
 
-            socket.on('newroom', (newroom) => {
-
-                if (rooms.indexOf(newroom) == -1) {
-                    rooms.push(newroom);
-                    chat.emit('roomlist', JSON.stringify(rooms));
-                }
-
-            });
-
-            socket.on('roomlist', (m) => {
-                chat.emit('roomlist', JSON.stringify(rooms));
-
-            });
-
-
-            socket.on('numusers', (room) => {
-                var usercount = 0;
-
-                for (i = 0; i < socketRoomnum.length; i++) {
-                    if (socketRoomnum[i][0] == room) {
-                        usercount = socketRoomnum[i][1];
-                    }
-
-                }
-
-                chat.in(room).emit('numusers', usercount);
-
-            });
-
             socket.on('joinRoom', (room) => {
 
-                if (rooms.includes(room)) {
                     socket.join(room, () => {
                         var inroomSocketarray = false;
 
@@ -285,7 +258,7 @@ module.exports = {
 
                     });
                     return chat.in(room).emit("joined", room);
-                }
+                
             });
 
             socket.on("leaveroom", (room) => {

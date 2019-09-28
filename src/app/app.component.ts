@@ -11,7 +11,6 @@ export class AppComponent {
 
   constructor() { 
     this.hidelogin();
-
   }
 
   ngOnInit(){
@@ -19,7 +18,7 @@ export class AppComponent {
   }
 
   hidelogin(){
-    let username = localStorage.getItem('username');
+    let username = sessionStorage.getItem('username');
     if(username){
       this.login = false;
     }
@@ -28,7 +27,7 @@ export class AppComponent {
   
 
   logout(){
-    localStorage.clear();
+    sessionStorage.clear();
   }
 }
 

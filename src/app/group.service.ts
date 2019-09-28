@@ -16,8 +16,8 @@ export class GroupService {
     this.socket = io(SERVER_URL);
   }
 
-  getgroup():void{
-    this.socket.emit('getgroup');
+  getgroup(username):void{
+    this.socket.emit('getgroup',username);
   }
 
   getgrouped(next){

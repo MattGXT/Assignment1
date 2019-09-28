@@ -2,6 +2,7 @@ import { Component, OnInit, ɵConsole } from '@angular/core';
 import { GroupService } from '../group.service';
 import { LoginService } from '../login.service';
 import { UseraddService } from '../useradd.service';
+import {SocketService} from '../socket.service';
 
 @Component({
   selector: 'app-channel',
@@ -23,20 +24,25 @@ export class ChannelComponent implements OnInit {
   channels = [];
   userlist = [];
   groups = [];
+  messages:string[] = [];
+  isinRoom = false;
+  roomnotice: string = "";
 
 
 
 
-  constructor(private addservice: UseraddService, private groupservice: GroupService, private loginservice: LoginService) { }
+  constructor(private addservice: UseraddService, private groupservice: GroupService, private loginservice: LoginService, private socketservice:SocketService) { }
 
   ngOnInit() {
+    this.socketservice.initSocket();
+    this.socketservice.getMessage((m)=>{this.messages.push(m)});
     this.groupservice.initSocket();
     this.loginservice.initSocket();
     this.addservice.initSocket();
-    var username = localStorage.getItem('username');
-    this.groupservice.getgroup();
+    var username = sessionStorage.getItem('username');
+    this.groupservice.getgroup(username);
     this.groupservice.getgrouped((res) => { this.groups = JSON.parse(res) });
-    this.channelname = JSON.parse(localStorage.getItem("channelname"));
+    this.channelname = JSON.parse(sessionStorage.getItem("channelname"));
     this.groupservice.getchannel();
     this.groupservice.getchanneled((res) => {
       this.channels = JSON.parse(res)
@@ -81,6 +87,14 @@ export class ChannelComponent implements OnInit {
       console.log(this.temp);
     });
     this.username = username;
+    this.socketservice.joined((msg)=>{this.channelname = msg
+      if(this.channelname != ""){
+        this.isinRoom = true;
+      }else{
+        this.isinRoom = false;
+      }
+      });
+      this.socketservice.notice((msg)=>{this.roomnotice = msg});
   }
 
 
@@ -110,5 +124,16 @@ export class ChannelComponent implements OnInit {
     if (this.isadmin == true || this.issuper == true) {
       return true;
     }
+  }
+
+  join(){
+    this.socketservice.joinroom(this.channelname);
+  }
+
+  leave(){
+    this.socketservice.leaveroom(this.channelname);
+    this.roomnotice = "";
+    this.messages = [];
+    this.isinRoom = false;
   }
 }

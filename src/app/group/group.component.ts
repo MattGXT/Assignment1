@@ -42,7 +42,7 @@ export class GroupComponent implements OnInit {
   constructor(private addservice: UseraddService, private groupservice: GroupService, private loginservice:LoginService) { }
 
   ngOnInit() {
-    let username = localStorage.getItem('username');
+    let username = sessionStorage.getItem('username');
     this.username = username;
     this.loginservice.initSocket();
     this.addservice.initSocket();
@@ -62,24 +62,10 @@ export class GroupComponent implements OnInit {
       this.assislist = this.userlist;
     }); 
     this.groupservice.initSocket();
-    this.groupservice.getgroup();
-    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)
-      for (let i = 0; i < this.groups.length; i++) {
-        for (let j = 0; j < this.groups[i].members.length; j++) {
-          if (username == this.groups[i].members[j]) {
-            this.showngroups.push(this.groups[i]);
-          }
-        }
-      }
-    }); 
+    this.groupservice.getgroup(username);
+    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
     this.groupservice.getchannel();
     this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
-    console.log(this.assislist);
-
-    //Show the group current user has joined
-
-    this.username = username;
-    console.log(this.showngroups);
   }
 
   add() {
@@ -115,13 +101,12 @@ export class GroupComponent implements OnInit {
       }
     }
     this.userlist.push(newuser);
-    let newupload = JSON.stringify(this.userlist);
     this.addservice.add(JSON.stringify(newuser));
     location.reload();
   }
 
   creategroup() {
-    var username = localStorage.getItem('username');
+    var username = sessionStorage.getItem('username');
     var empty = [];
     empty.push(username);
     var grouplist = {
@@ -139,7 +124,7 @@ export class GroupComponent implements OnInit {
   }
 
   remove(groupname) {
-    var username = localStorage.getItem('username');
+    var username = sessionStorage.getItem('username');
     for (let i = 0; i < this.groups.length; i++) {
       if (groupname == this.groups[i].name) {
         this.groups.splice(i, 1);
@@ -151,14 +136,14 @@ export class GroupComponent implements OnInit {
   }
 
   addchannel(groupname) {
-    var username = localStorage.getItem('username');
+    var username = sessionStorage.getItem('username');
     var empty = [];
     empty.push(username);
     var channel = {
       name: this.channelname,
       group: groupname,
       members: empty,
-      history: ""
+      history: []
     }
     this.groupservice.addchannel(channel);
     location.reload();
@@ -175,7 +160,7 @@ export class GroupComponent implements OnInit {
   }
 
   go(channelname) {
-    localStorage.setItem("channelname", JSON.stringify(channelname));
+    sessionStorage.setItem("channelname", JSON.stringify(channelname));
   }
 
   addassis(groupname) {

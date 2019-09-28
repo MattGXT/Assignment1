@@ -1,6 +1,22 @@
 <div class="table-title">
     <h3>{{channelname}}</h3>
-    <h3>History: {{history}}</h3>
+    <div class = "form-group" *ngIf = "isinRoom">
+        <label for = "messagecontent">New message</label>
+        <input type = "text" [(ngModel)] = "messagecontent" name = "messagecontent" id = "messagecontent" class = "form-control"/>
+    </div>  
+    <div class = "form-group">
+        <button *ngIf = "isinRoom" (click) ="chat(messagecontent)" class = "btn btn-primary">Chat</button> &nbsp;
+        <button *ngIf = "!isinRoom" (click) = "join()" class = "btn btn-primary">Join</button>&nbsp;
+        <button *ngIf = "isinRoom" (click) = "leave()" class = "btn btn-primary">Leave</button>&nbsp;
+    </div>
+    <div *ngIf = "isinRoom">
+        <h3>History: {{history}}</h3>
+        <h3>Notices:</h3>
+    {{roomnotice}}<br>
+    </div>
+    
+
+
     <form *ngIf = "checkauth(group)" class="form-horizontal">
             <h3>Add User</h3>
             <div class="form-group"> <!-- Full Name -->

@@ -24,11 +24,6 @@ export class LoginComponent implements OnInit {
     this.loginservice.initSocket();
     this.loginservice.login();
     this.loginservice.logined((res)=>{this.user = JSON.parse(res)}); 
-    this.groupservice.initSocket();
-    this.groupservice.getgroup();
-    this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
-    this.groupservice.getchannel();
-    this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
   }
 
   login(){
@@ -36,7 +31,7 @@ export class LoginComponent implements OnInit {
       for(let i = 0;i< this.user.length;i++){
         if(this.username == this.user[i].name&&this.password ==this.user[i].password){
           alert("successful");
-          localStorage.setItem("username", this.username);
+          sessionStorage.setItem("username", this.username);
           this.router.navigate(['/group']);
           a = 1;
           break;
