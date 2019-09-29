@@ -28,7 +28,7 @@ export class GroupService {
   }
 
   getchannel(){
-    this.socket.emit('getchannel');
+    return this.http.get<any>('http://localhost:3000/api/getchannel');
   }
 
   getchanneled(next){
@@ -69,5 +69,9 @@ export class GroupService {
 
   deluserofgroup(groupname,username){
     this.socket.emit("deluser",groupname,username);
+  }
+
+  imgupload(fd){
+    return this.http.post<any>('http://localhost:3000/api/upload',fd);
   }
 }

@@ -65,8 +65,8 @@ export class GroupComponent implements OnInit {
     this.groupservice.getgroup(username).subscribe((data)=>{
       this.groups = data});
     //this.groupservice.getgrouped((res)=>{this.groups = JSON.parse(res)}); 
-    this.groupservice.getchannel();
-    this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
+    this.groupservice.getchannel().subscribe((res)=>{this.channels = res});
+    //this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
   }
 
   add() {

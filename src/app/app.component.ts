@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'chat';
   login = true;
+  username = ""
 
   constructor() { 
     this.hidelogin();
@@ -18,8 +19,8 @@ export class AppComponent {
   }
 
   hidelogin(){
-    let username = sessionStorage.getItem('username');
-    if(username){
+    this.username = sessionStorage.getItem('username');
+    if(this.username){
       this.login = false;
     }
   }

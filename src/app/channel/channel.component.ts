@@ -2,7 +2,8 @@ import { Component, OnInit, ɵConsole } from '@angular/core';
 import { GroupService } from '../group.service';
 import { LoginService } from '../login.service';
 import { UseraddService } from '../useradd.service';
-import {SocketService} from '../socket.service';
+import { SocketService } from '../socket.service';
+
 
 @Component({
   selector: 'app-channel',
@@ -28,15 +29,17 @@ export class ChannelComponent implements OnInit {
   isinRoom = false;
   roomnotice: string = "";
   messagecontent = '';
+  selectedfile = null;
+  imagepath = '';
 
 
 
 
-  constructor(private addservice: UseraddService, private groupservice: GroupService, private loginservice: LoginService, private socketservice:SocketService) { }
+  constructor(private addservice: UseraddService, private groupservice: GroupService, private loginservice: LoginService, private socketservice: SocketService) { }
 
   ngOnInit() {
     this.socketservice.initSocket();
-    this.socketservice.getMessage((m)=>{this.messages.push(m)});
+    this.socketservice.getMessage((m) => { this.messages.push(m) });
     this.groupservice.initSocket();
     this.loginservice.initSocket();
     this.addservice.initSocket();
@@ -44,9 +47,8 @@ export class ChannelComponent implements OnInit {
     this.groupservice.getgroup(username);
     this.groupservice.getgrouped((res) => { this.groups = JSON.parse(res) });
     this.channelname = JSON.parse(sessionStorage.getItem("channelname"));
-    this.groupservice.getchannel();
-    this.groupservice.getchanneled((res) => {
-      this.channels = JSON.parse(res)
+    this.groupservice.getchannel().subscribe((res)=>{
+      this.channels = res;
       for (let i = 0; i < this.channels.length; i++) {
         if (this.channelname == this.channels[i].name) {
           this.history = this.channels[i].history;
@@ -65,6 +67,9 @@ export class ChannelComponent implements OnInit {
       }
       console.log(this.deletetmp);
     });
+    //this.groupservice.getchanneled((res) => {
+      
+    //});
 
 
     this.loginservice.login();
@@ -88,14 +93,15 @@ export class ChannelComponent implements OnInit {
       console.log(this.temp);
     });
     this.username = username;
-    this.socketservice.joined((msg)=>{this.channelname = msg
-      if(this.channelname != ""){
+    this.socketservice.joined((msg) => {
+    this.channelname = msg
+      if (this.channelname != "") {
         this.isinRoom = true;
-      }else{
+      } else {
         this.isinRoom = false;
       }
-      });
-      this.socketservice.notice((msg)=>{this.roomnotice = msg});
+    });
+    this.socketservice.notice((msg) => { this.roomnotice = msg });
   }
 
 
@@ -127,20 +133,36 @@ export class ChannelComponent implements OnInit {
     }
   }
 
-  join(){
+  join() {
     this.socketservice.joinroom(this.channelname);
   }
 
-  leave(){
+  leave() {
     this.socketservice.leaveroom(this.channelname);
     this.roomnotice = "";
     this.messages = [];
     this.isinRoom = false;
   }
 
-  chat(message){
-    var x = [this.username,message]
-    this.socketservice.sendMessage(x,this.channelname);
-    this.messagecontent = null;
+  chat(message) {
+    if (this.selectedfile) {
+      const fd = new FormData();
+      fd.append('image', this.selectedfile, this.selectedfile.name);
+      this.groupservice.imgupload(fd).subscribe(res => {
+        this.imagepath = res.data.filename;
+        var a = [this.username, message,this.imagepath];
+        this.socketservice.sendMessage(a, this.channelname);
+        this.messagecontent = null;
+      })
+    } else{
+      var x = [this.username, message]
+      this.socketservice.sendMessage(x, this.channelname);
+      this.messagecontent = null;
+    }
+  }
+
+  onfileselected(event) {
+    console.log(event);
+    this.selectedfile = event.target.files[0];
   }
 }

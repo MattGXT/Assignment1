@@ -3,7 +3,9 @@
     <div class = "form-group" *ngIf = "isinRoom">
         <label for = "messagecontent">New message</label>
         <input type = "text" [(ngModel)] = "messagecontent" name = "messagecontent" id = "messagecontent" class = "form-control"/>
+        <input type = 'file' class = "form-control" (change) = "onfileselected($event)" name = "uploadfile" id = "uploadfile"/>
     </div>  
+    
     <div class = "form-group">
         <button *ngIf = "isinRoom" (click) ="chat(messagecontent)" class = "btn btn-primary">Chat</button> &nbsp;
         <button *ngIf = "!isinRoom" (click) = "join()" class = "btn btn-primary">Join</button>&nbsp;
@@ -11,14 +13,14 @@
     </div>
     <div *ngIf = "isinRoom">
         <h3>History:</h3>
-        <p  *ngFor = "let message of history"> {{message[0]}}:{{message[1]}}</p>
-        <p *ngFor = "let message of messages">{{message[0]}}:{{message[1]}}</p>
+        <p  *ngFor = "let message of history"> {{message[0]}}:{{message[1]}}<img *ngIf = "message[2]" src = "http://localhost:3000/images/{{message[2]}}"></p>
+        <p *ngFor = "let message of messages">{{message[0]}}:{{message[1]}}<img *ngIf = "message[2]" src = "http://localhost:3000/images/{{message[2]}}"></p>
         <h3>Notices:</h3>
     {{roomnotice}}<br>
     </div>
     
 
-
+    <br><br><br>
     <form *ngIf = "checkauth(group)" class="form-horizontal">
             <h3>Add User</h3>
             <div class="form-group"> <!-- Full Name -->
