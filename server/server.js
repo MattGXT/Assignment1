@@ -9,9 +9,6 @@ const path = require('path');
 const formidable = require('formidable');
 const MongoClient = require('mongodb').MongoClient;
 var  ObjectID = require('mongodb').ObjectID;
-var fs = require('fs');
-
-const PORT = 3000;
 
 app.use(cors());
 app.use(express.static(path.join(__dirname,'../dist/imageupload/')));
@@ -24,8 +21,10 @@ MongoClient.connect(url, {poolSize:10,useNewUrlParser: true,useUnifiedTopology: 
         const db = client.db(dbName);
         sockets.connect(app,io,db);
         require('./routes/create.js')(db);
+        require('./routes/getuser.js')(db,app);
         require('./routes/getgroup.js')(db,app);
         require('./routes/getchannel.js')(db,app);
+        require('./routes/getachannel.js')(db,app);
         require('./routes/upload.js')(app,formidable);
         require('./listen.js')(http);
 });
