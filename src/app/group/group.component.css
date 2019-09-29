@@ -150,3 +150,7 @@ select{
   width: 150px;
   margin: 10px 0 0 0;
 }
+
+.row{
+  margin: 0 auto;
+}

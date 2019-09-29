@@ -29,26 +29,6 @@ export class SocketService {
     this.socket.on('joined',res =>next(res));
   }
 
-  createroom(newroom){
-    this.socket.emit('newroom',newroom);
-  }
-
-  reqnumusers(selroom){
-    this.socket.emit("numusers",selroom);
-  }
-
-  getnumusers(next){
-    this.socket.on('numusers',res=>next(res));
-  }
-
-  reqroomList(){
-    this.socket.emit('roomlist','list please');
-  }
-
-  getroomList(next){
-    this.socket.on('roomlist',res =>next(res));
-  }
-
   notice(next){
     this.socket.on('notice',res => next(res));
   }

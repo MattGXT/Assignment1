@@ -1,6 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { FormsModule } from '@angular/forms';
 import { LoginComponent } from './login.component';
+import { RouterTestingModule } from '@angular/router/testing';
+import {HttpClientModule} from '@angular/common/http';
+
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -8,6 +11,9 @@ describe('LoginComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [
+      FormsModule,RouterTestingModule,HttpClientModule
+    ],
       declarations: [ LoginComponent ]
     })
     .compileComponents();
@@ -21,5 +27,12 @@ describe('LoginComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should return try again', () => {
+    spyOn(window, "alert");
+    let button = fixture.debugElement.nativeElement.querySelector('button');
+    button.click();
+    expect(window.alert).toHaveBeenCalledWith("Try again");
   });
 });
