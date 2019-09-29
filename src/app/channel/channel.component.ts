@@ -165,4 +165,14 @@ export class ChannelComponent implements OnInit {
     console.log(event);
     this.selectedfile = event.target.files[0];
   }
+
+  isinchannel(){
+    if(this.isinRoom == false){
+      for(let i = 0;i<this.members.length;i++){
+        if(this.username == this.members[i]){
+          return true;
+        }
+      }
+    }
+  }
 }
