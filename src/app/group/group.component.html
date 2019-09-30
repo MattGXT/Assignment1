@@ -1,6 +1,6 @@
 <body>
     <div class="table-title">
-        <h3>Group List</h3>
+        <h3 id = "title">Group List</h3>
     </div>
     <table class="table-fill">
         <thead>
@@ -15,7 +15,7 @@
         <tbody class="table-hover">
             <ng-container *ngFor="let group of groups">
                 <tr>
-                    <td class="text-left">{{group.name}}</td>
+                    <td id = "groupname" class="text-left">{{group.name}}</td>
                     <td class="text-left">
                         {{group.members}}<br>
                         <select [(ngModel)]="aname" name="aname" *ngIf="isadmin||issuper">

@@ -28,5 +28,4 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('chat');
   });
 
-  
 });
