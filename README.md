@@ -37,9 +37,8 @@ History: string
 
 1. Components:
     - Login
-    -  Group
+    - Group
     - Channel
-    - Chat (haven’t done)
 
 2. Services:
     - Login (get the current userlists)
