@@ -47,7 +47,7 @@ export class ChannelComponent implements OnInit {
     this.groupservice.getgroup(username);
     this.groupservice.getgrouped((res) => { this.groups = JSON.parse(res) });
     this.channelname = JSON.parse(sessionStorage.getItem("channelname"));
-    this.groupservice.getchannel().subscribe((res)=>{
+    this.groupservice.getchannel().subscribe((res) => {
       this.channels = res;
       for (let i = 0; i < this.channels.length; i++) {
         if (this.channelname == this.channels[i].name) {
@@ -67,10 +67,6 @@ export class ChannelComponent implements OnInit {
       }
       console.log(this.deletetmp);
     });
-    //this.groupservice.getchanneled((res) => {
-      
-    //});
-
 
     this.loginservice.login();
     this.loginservice.logined((res) => {
@@ -94,7 +90,7 @@ export class ChannelComponent implements OnInit {
     });
     this.username = username;
     this.socketservice.joined((msg) => {
-    this.channelname = msg
+      this.channelname = msg
       if (this.channelname != "") {
         this.isinRoom = true;
       } else {
@@ -104,20 +100,22 @@ export class ChannelComponent implements OnInit {
     this.socketservice.notice((msg) => { this.roomnotice = msg });
   }
 
-
+  //add username to channel
   adduser() {
-    // add username to channel
+
     this.groupservice.addusertochannel(this.addusername, this.channelname, this.group);
     alert("add successful");
     location.reload();
   }
 
+  //delete username from channel
   deleteuser() {
     this.groupservice.deleteusertochannel(this.deleteusername, this.channelname);
     alert("delete successful");
     location.reload();
   }
 
+  //check user's type
   checkauth(groupname) {
     for (let i = 0; i < this.groups.length; i++) {
       if (groupname == this.groups[i].name) {
@@ -133,10 +131,12 @@ export class ChannelComponent implements OnInit {
     }
   }
 
+  //join chat
   join() {
     this.socketservice.joinroom(this.channelname);
   }
 
+  //leave chat
   leave() {
     this.socketservice.leaveroom(this.channelname);
     this.roomnotice = "";
@@ -144,32 +144,35 @@ export class ChannelComponent implements OnInit {
     this.isinRoom = false;
   }
 
+  //send message
   chat(message) {
     if (this.selectedfile) {
       const fd = new FormData();
       fd.append('image', this.selectedfile, this.selectedfile.name);
       this.groupservice.imgupload(fd).subscribe(res => {
         this.imagepath = res.data.filename;
-        var a = [this.username, message,this.imagepath];
+        var a = [this.username, message, this.imagepath];
         this.socketservice.sendMessage(a, this.channelname);
         this.messagecontent = null;
       })
-    } else{
+    } else {
       var x = [this.username, message]
       this.socketservice.sendMessage(x, this.channelname);
       this.messagecontent = null;
     }
   }
 
+  //select image event
   onfileselected(event) {
     console.log(event);
     this.selectedfile = event.target.files[0];
   }
 
-  isinchannel(){
-    if(this.isinRoom == false){
-      for(let i = 0;i<this.members.length;i++){
-        if(this.username == this.members[i]){
+  //determine user join the chat or not
+  isinchannel() {
+    if (this.isinRoom == false) {
+      for (let i = 0; i < this.members.length; i++) {
+        if (this.username == this.members[i]) {
           return true;
         }
       }

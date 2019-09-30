@@ -71,6 +71,7 @@ export class GroupComponent implements OnInit {
     //this.groupservice.getchanneled((res)=>{this.channels = JSON.parse(res)});
   }
 
+  //add user to userlist
   add() {
     if(this.name == ""||this.email == ""||this.password == ""){
       alert('please input whole detail')
@@ -112,6 +113,7 @@ export class GroupComponent implements OnInit {
     }
   }
 
+  //create group
   creategroup() {
     if (this.groupname == "") {
       alert("please input group name")
@@ -134,6 +136,7 @@ export class GroupComponent implements OnInit {
     }
   }
 
+  //remove group
   remove(groupname) {
     var username = sessionStorage.getItem('username');
     for (let i = 0; i < this.groups.length; i++) {
@@ -146,6 +149,7 @@ export class GroupComponent implements OnInit {
     location.reload();
   }
 
+  //add channel to group
   addchannel(groupname) {
     if (this.channelname == "") {
       alert('please input the name of channel')
@@ -164,32 +168,38 @@ export class GroupComponent implements OnInit {
     }
   }
 
+  //remove channel with groupname and channel name
   removechannel(channelname, groupname) {
     this.groupservice.removechannel(channelname, groupname);
     location.reload();
   }
 
+  //delete user from User
   deleteuser() {
     this.addservice.delete(this.deleteusername);
     location.reload();
   }
 
+  //set channelname which user selected
   go(channelname) {
     sessionStorage.setItem("channelname", JSON.stringify(channelname));
   }
 
+  //add assis to group
   addassis(groupname) {
     this.groupservice.addassistogroup(groupname, this.assisname);
     alert("add successful");
     location.reload();
   }
 
+  //add user to group
   adduser(groupname) {
     this.groupservice.addusertogroup(groupname, this.aname);
     alert("successful");
     location.reload();
   }
 
+  //delete user from group
   deluser(groupname) {
     this.groupservice.deluserofgroup(groupname, this.dname);
     alert("successful");
@@ -212,7 +222,7 @@ export class GroupComponent implements OnInit {
     }
   }
 
-
+  //update the select tag for add user to group
   getaddgroupuser(groupmember) {
     var userlist = this.userlist;
     var addgroupuser = [];

@@ -18,6 +18,7 @@ export class AppComponent {
     
   }
 
+  //hide login button after login
   hidelogin(){
     this.username = sessionStorage.getItem('username');
     if(this.username){
@@ -26,7 +27,7 @@ export class AppComponent {
   }
 
   
-
+  //logout to clear the sessionstorage
   logout(){
     sessionStorage.clear();
   }

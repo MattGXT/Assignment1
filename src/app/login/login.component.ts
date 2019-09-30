@@ -13,7 +13,7 @@ import {GroupService} from '../group.service';
 export class LoginComponent implements OnInit {
 
   username:string = "";
-  password:number;
+  password:string;
   user = [];
   groups = [];
   channels = [];
@@ -26,6 +26,7 @@ export class LoginComponent implements OnInit {
     this.loginservice.logined((res)=>{this.user = JSON.parse(res)}); 
   }
 
+  //login with name and password
   login(){
     var a = 0;
       for(let i = 0;i< this.user.length;i++){
